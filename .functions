@@ -1,0 +1,250 @@
+# ===== Claude Multi-Agent Functions =====
+# Four specialized Claude agents: architect, requirements, coder, auditor
+
+# Core function to run Claude with specific role
+_run_claude_role() {
+    local role_name=$1
+    local role_file=$2
+    shift 2  # Remove first two arguments
+
+    # Show role banner
+    case $role_name in
+        architect)
+            echo "🏛️  Wayne - Legendary System Architect"
+            ;;
+        analyst)
+            echo "📋 Selina - Master Analyst"
+            ;;
+        coder)
+            echo "⚡ Shirley - Transcendent Code Artisan"
+            ;;
+        auditor)
+            echo "🔍 Dylon - Supreme Code Auditor"
+            ;;
+    esac
+
+    # Force copy role configuration (overwrite if exists)
+    cp -f "$role_file" ./CLAUDE.md
+
+    # Run claude with all arguments
+    claude "$@"
+    local exit_code=$?
+
+    # Trap will handle cleanup
+    trap - EXIT INT TERM  # Reset trap
+    rm -f ./CLAUDE.md     # Explicit cleanup (belt and suspenders)
+
+    return $exit_code
+}
+
+# Wayne - The Architect (never writes code, only prompts)
+wayne() {
+    _run_claude_role "architect" "$HOME/.claude/architect.md" "$@"
+}
+
+# Selina - The Requirements Analyst (understands user needs)
+selina() {
+    _run_claude_role "analyst" "$HOME/.claude/analyst.md" "$@"
+}
+
+# Shirley - The Coder (implements with perfection)
+shirley() {
+    _run_claude_role "coder" "$HOME/.claude/coder.md" "$@"
+}
+
+# Dylon - The Auditor (reviews code, never writes it)
+dylon() {
+    _run_claude_role "auditor" "$HOME/.claude/auditor.md" "$@"
+}
+
+# Aliases for shorter commands
+w() {
+    wayne "$@"
+}
+
+se() {
+    selina "$@"
+}
+
+s() {
+    shirley "$@"
+}
+
+d() {
+    dylon "$@"
+}
+
+# Continue shortcuts - single letter + c
+wc() {
+    wayne --continue "$@"
+}
+
+sec() {
+    selina --continue "$@"
+}
+
+sc() {
+    shirley --continue "$@"
+}
+
+dc() {
+    dylon --continue "$@"
+}
+
+# Status function to show current Claude configuration
+claude-status() {
+    echo "🤖 Claude Multi-Agent System Status"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+    # Check for role files
+    echo "📁 Role Definitions:"
+    [ -f "$HOME/.claude/architect.md" ] && echo "  ✅ Wayne (Architect) - wayne, w, wc" || echo "  ❌ architect.md missing"
+    [ -f "$HOME/.claude/analyst.md" ] && echo "  ✅ Selina (Analyst) - selina, se, sec" || echo "  ❌ analyst.md missing"
+    [ -f "$HOME/.claude/coder.md" ] && echo "  ✅ Shirley (Coder) - shirley, s, sc" || echo "  ❌ coder.md missing"
+    [ -f "$HOME/.claude/auditor.md" ] && echo "  ✅ Dylon (Auditor) - dylon, d, dc" || echo "  ❌ auditor.md missing"
+
+    echo ""
+    echo "📍 Current Directory: $(pwd)"
+
+    if [ -f "./CLAUDE.md" ]; then
+        echo "📄 Active CLAUDE.md: Found (session in progress?)"
+        echo "   First line: $(head -n 1 ./CLAUDE.md | cut -c 1-50)..."
+    else
+        echo "📄 CLAUDE.md: Clean (no active session)"
+    fi
+
+    echo ""
+    echo "🎯 Available Commands:"
+    echo "  selina, se   - Requirements analyst"
+    echo "  wayne, w     - System architect"
+    echo "  shirley, s   - Coder"
+    echo "  dylon, d     - Auditor"
+    echo "  sec,wc,sc,dc - Continue sessions"
+}
+
+# Quick help function
+claude-help() {
+    echo "🤖 Claude Multi-Agent System Commands"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "AGENTS:"
+    echo "  selina [args]   - Requirements Analyst (gathers needs)"
+    echo "  wayne [args]    - System Architect (creates prompts)"
+    echo "  shirley [args]  - Coder (implements solutions)"
+    echo "  dylon [args]    - Code Auditor (reviews code)"
+    echo ""
+    echo "SHORTCUTS:"
+    echo "  se, w, s, d     - Short versions of agent commands"
+    echo "  sec,wc,sc,dc    - Continue last session (--continue)"
+    echo ""
+    echo "UTILITIES:"
+    echo "  claude-status   - Show system status"
+    echo "  claude-help     - Show this help"
+    echo "  claude-flow     - Run complete workflow"
+    echo ""
+    echo "WORKFLOW:"
+    echo "  1. Selina gathers requirements"
+    echo "  2. Wayne designs architecture"
+    echo "  3. Shirley implements code"
+    echo "  4. Dylon audits results"
+    echo ""
+    echo "EXAMPLES:"
+    echo "  se              - Start requirements session"
+    echo "  w --continue    - Continue architecture session"
+    echo "  s               - Start coding session"
+    echo "  dc              - Continue audit session"
+}
+
+# Complete workflow helper
+claude-flow() {
+    local task="$1"
+
+    if [ -z "$task" ]; then
+        echo "Usage: claude-flow \"describe your task here\""
+        echo ""
+        echo "This will run the complete workflow:"
+        echo "  1. Selina - Gather requirements"
+        echo "  2. Wayne - Design architecture"
+        echo "  3. Shirley - Implement solution"
+        echo "  4. Dylon - Audit the code"
+        return 1
+    fi
+
+    echo "🚀 Starting Claude Multi-Agent Workflow"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "Task: $task"
+    echo ""
+
+    echo "Step 1: Requirements Analysis with Selina"
+    echo "----------------------------------------"
+    selina
+
+    echo ""
+    echo "Step 2: Architecture Design with Wayne"
+    echo "--------------------------------------"
+    wayne
+
+    echo ""
+    echo "Step 3: Implementation with Shirley"
+    echo "-----------------------------------"
+    shirley
+
+    echo ""
+    echo "Step 4: Code Audit with Dylon"
+    echo "-----------------------------"
+    dylon
+
+    echo ""
+    echo "✅ Workflow complete! Use 'sc' to continue with fixes if needed."
+}
+
+# Quick project setup with all agents
+claude-init-project() {
+    local project_name="$1"
+
+    if [ -z "$project_name" ]; then
+        echo "Usage: claude-init-project \"project-name\""
+        echo ""
+        echo "This will:"
+        echo "  1. Create project directory"
+        echo "  2. Initialize git"
+        echo "  3. Run initial requirements gathering"
+        return 1
+    fi
+
+    echo "🚀 Initializing project: $project_name"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+    # Create and enter project directory
+    mkdir -p "$project_name"
+    cd "$project_name"
+
+    # Initialize git
+    git init
+
+    echo ""
+    echo "📁 Project created at: $(pwd)"
+    echo ""
+    echo "Starting requirements gathering with Selina..."
+    echo "----------------------------------------"
+    selina
+
+    echo ""
+    echo "✅ Project initialized! Next steps:"
+    echo "  1. Use 'w' to design architecture"
+    echo "  2. Use 's' to start implementation"
+    echo "  3. Use 'd' to audit code"
+}
+
+# Check which agent was last used (based on shell history)
+claude-last() {
+    # Look for the last claude agent command in history
+    local last_cmd=$(history | grep -E "^[[:space:]]*[0-9]+[[:space:]]+(wayne|selina|shirley|dylon|w|se|s|d|wc|sec|sc|dc)" | tail -1)
+
+    if [ -n "$last_cmd" ]; then
+        echo "📌 Last agent used:"
+        echo "$last_cmd"
+    else
+        echo "No agent commands found in recent history"
+    fi
+}

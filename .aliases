@@ -1,0 +1,23 @@
+# ===== Claude Multi-Agent Aliases =====
+
+# Primary commands (already defined as functions)
+# wayne, w - Architect
+# dylon, d - Auditor
+# shirley, s - Coder
+# selina, se - Analyst
+
+# Continue shortcuts (already defined as functions)
+# wc - Wayne continue
+# dc - Dylon continue
+# sc - Shirley continue
+# sec - Selina continue
+
+# Utility shortcuts
+alias cs='claude-status'
+alias ch='claude-help'
+alias cf='claude-flow'
+alias ci='claude-init-project'
+alias cl='claude-last'
+
+# Role verification
+alias check-claude='ls -la ~/.claude/*.md'
